@@ -10,7 +10,8 @@ class Parsely < Formula
   depends_on "node"
 
   def install
-    system "npm", "install", "-g", "@sambitcreate/parsely-cli", *std_npm_install_args
+    system "npm", "install", *std_npm_args(prefix: libexec)
+    bin.install_symlink libexec/"bin/parsely"
   end
 
   test do
