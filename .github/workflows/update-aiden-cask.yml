@@ -1,0 +1,75 @@
+name: Update Aiden cask
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-aiden-cask
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: macos-26
+    timeout-minutes: 30
+    env:
+      HOMEBREW_GITHUB_API_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Check out tap
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Update cask from the latest Aiden release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./scripts/update-aiden-cask.sh
+
+      - name: Detect update
+        id: update
+        run: |
+          if git diff --quiet -- Casks/aiden-agent.rb; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Register checked-out tap
+        if: steps.update.outputs.changed == 'true'
+        run: brew tap --custom-remote sambitcreate/tap "$GITHUB_WORKSPACE"
+
+      - name: Validate update
+        if: steps.update.outputs.changed == 'true'
+        run: |
+          brew readall sambitcreate/tap
+          brew style --cask sambitcreate/tap/aiden-agent
+          brew audit --strict --online --cask sambitcreate/tap/aiden-agent
+          brew fetch --cask sambitcreate/tap/aiden-agent
+
+      - name: Open update pull request
+        if: steps.update.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="$(ruby -e 'puts File.read("Casks/aiden-agent.rb")[/^\s*version "([^"]+)"$/, 1]' )"
+          branch="automation/aiden-agent-${version}"
+          if [[ -n "$(gh pr list --head "$branch" --state open --json url --jq '.[0].url // empty')" ]]; then
+            echo "An update pull request is already open for ${version}."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add Casks/aiden-agent.rb
+          git commit -m "aiden-agent ${version}"
+          git push --set-upstream origin "$branch"
+          gh pr create \
+            --base main \
+            --head "$branch" \
+            --title "aiden-agent ${version}" \
+            --body "Updates the Aiden Agent cask to the latest verified public release."
