@@ -1,8 +1,8 @@
 cask "aiden-agent" do
-  version "0.27.26"
-  sha256 "18a466bf32b46763883a9083c0b35e144384a9035fc2063d3c7b4c0b6a01575e"
+  version "0.28.31"
+  sha256 "6386cade42a418a22d45924b879e75ec2d2b733e0be5ac45ecd821b5def56a87"
 
-  url "https://github.com/sambitcreate/aiden-agent/releases/download/v#{version}/Aiden.Agent.Beta-#{version}-arm64.dmg"
+  url "https://github.com/sambitcreate/aiden-agent/releases/download/v#{version}/Aiden-Agent-Beta-#{version}-arm64.dmg"
   name "Aiden Agent"
   desc "AI workspace agent for local and hosted models"
   homepage "https://github.com/sambitcreate/aiden-agent"
