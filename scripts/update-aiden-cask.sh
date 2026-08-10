@@ -24,7 +24,7 @@ if [[ ! "$tag" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
   exit 1
 fi
 version="${BASH_REMATCH[1]}"
-asset_name="Aiden.Agent.Beta-${version}-arm64.dmg"
+asset_name="Aiden-Agent-Beta-${version}-arm64.dmg"
 asset_url="$(
   ASSET_NAME="$asset_name" ruby -rjson -e '
     release = JSON.parse(STDIN.read)
