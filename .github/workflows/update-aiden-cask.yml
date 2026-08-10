@@ -40,7 +40,11 @@ jobs:
 
       - name: Register checked-out tap
         if: steps.update.outputs.changed == 'true'
-        run: brew tap --custom-remote sambitcreate/tap "$GITHUB_WORKSPACE"
+        run: |
+          brew tap --custom-remote sambitcreate/tap "$GITHUB_WORKSPACE"
+          tap_repository="$(brew --repository sambitcreate/tap)"
+          cp "$GITHUB_WORKSPACE/Casks/aiden-agent.rb" "$tap_repository/Casks/aiden-agent.rb"
+          cmp -s "$GITHUB_WORKSPACE/Casks/aiden-agent.rb" "$tap_repository/Casks/aiden-agent.rb"
 
       - name: Validate update
         if: steps.update.outputs.changed == 'true'

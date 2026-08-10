@@ -1,6 +1,6 @@
 cask "aiden-agent" do
-  version "0.28.31"
-  sha256 "6386cade42a418a22d45924b879e75ec2d2b733e0be5ac45ecd821b5def56a87"
+  version "0.28.34"
+  sha256 "0bb62160c500ec011d2476c16dcb8d634d4ccbe2ad21fbc5548f61c0f8a782d9"
 
   url "https://github.com/sambitcreate/aiden-agent/releases/download/v#{version}/Aiden-Agent-Beta-#{version}-arm64.dmg"
   name "Aiden Agent"
