@@ -3,11 +3,12 @@ name: Update Aiden cask
 on:
   workflow_dispatch:
   schedule:
-    - cron: "17 */6 * * *"
+    # Cross-repository GITHUB_TOKENs cannot dispatch this workflow. Poll often
+    # enough that a verified Aiden release reaches Homebrew without a manual PR.
+    - cron: "*/15 * * * *"
 
 permissions:
   contents: write
-  pull-requests: write
 
 concurrency:
   group: update-aiden-cask
@@ -54,26 +55,15 @@ jobs:
           brew audit --strict --online --cask sambitcreate/tap/aiden-agent
           brew fetch --cask sambitcreate/tap/aiden-agent
 
-      - name: Open update pull request
+      - name: Publish verified cask update
         if: steps.update.outputs.changed == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           version="$(ruby -e 'puts File.read("Casks/aiden-agent.rb")[/^\s*version "([^"]+)"$/, 1]' )"
-          branch="automation/aiden-agent-${version}"
-          if [[ -n "$(gh pr list --head "$branch" --state open --json url --jq '.[0].url // empty')" ]]; then
-            echo "An update pull request is already open for ${version}."
-            exit 0
-          fi
-
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git switch -c "$branch"
           git add Casks/aiden-agent.rb
+          git diff --cached --check
           git commit -m "aiden-agent ${version}"
-          git push --set-upstream origin "$branch"
-          gh pr create \
-            --base main \
-            --head "$branch" \
-            --title "aiden-agent ${version}" \
-            --body "Updates the Aiden Agent cask to the latest verified public release."
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
