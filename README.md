@@ -20,6 +20,10 @@ Upgrade:
 brew upgrade --cask sambitcreate/tap/aiden-agent
 ```
 
+The tap checks for a newly published Aiden release every 15 minutes. It
+downloads the versioned DMG, recomputes its SHA-256 checksum, runs Homebrew's
+strict cask validation, and updates the cask only after those checks pass.
+
 Uninstall:
 
 ```sh
