@@ -21,7 +21,11 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Register checked-out tap
-        run: brew tap --custom-remote sambitcreate/tap "$GITHUB_WORKSPACE"
+        run: |
+          brew tap --custom-remote sambitcreate/tap "$GITHUB_WORKSPACE"
+          # Homebrew refuses to load casks from non-official taps until they
+          # are trusted. Trust only the cask this workflow validates.
+          brew trust --cask sambitcreate/tap/aiden-agent
 
       - name: Validate tap
         run: |

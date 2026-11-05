@@ -43,6 +43,9 @@ jobs:
         if: steps.update.outputs.changed == 'true'
         run: |
           brew tap --custom-remote sambitcreate/tap "$GITHUB_WORKSPACE"
+          # Homebrew refuses to load casks from non-official taps until they
+          # are trusted. Trust only the cask this workflow validates.
+          brew trust --cask sambitcreate/tap/aiden-agent
           tap_repository="$(brew --repository sambitcreate/tap)"
           cp "$GITHUB_WORKSPACE/Casks/aiden-agent.rb" "$tap_repository/Casks/aiden-agent.rb"
           cmp -s "$GITHUB_WORKSPACE/Casks/aiden-agent.rb" "$tap_repository/Casks/aiden-agent.rb"
